@@ -1,5 +1,6 @@
 "use client";
 
+import { createProducts } from "@/lib/actions/products.action";
 import React, { useState, ChangeEvent, FormEvent } from "react";
 import { v4 as uuidv4 } from "uuid";
 
@@ -21,7 +22,8 @@ interface Product {
 const ProductForm = ({ products, setProducts }: ProductListProps) => {
   const [productName, setProductName] = useState<string>("");
   const [productData, setProductData] = useState<string>("");
-  console.log(products);
+  const [isLoading, setIsLoading] = useState(false);
+  const [error, setError] = useState(null);
 
   const handleNameChange = (e: ChangeEvent<HTMLInputElement>) => {
     setProductName(e.target.value);
@@ -31,9 +33,10 @@ const ProductForm = ({ products, setProducts }: ProductListProps) => {
     setProductData(e.target.value);
   };
 
-  const handleSubmit = (e: FormEvent<HTMLFormElement>) => {
+  const handleSubmit = async (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     try {
+      setIsLoading(true);
       const parsedData: ProductData = JSON.parse(productData);
       const newProduct: Product = {
         id: uuidv4(),
@@ -41,11 +44,12 @@ const ProductForm = ({ products, setProducts }: ProductListProps) => {
         data: parsedData,
       };
       setProducts([...products, newProduct]);
-
-      // Clear the form after submission
+      await createProducts(newProduct);
       setProductName("");
       setProductData("");
+      setIsLoading(false);
     } catch (error) {
+      setIsLoading(false);
       console.error("Invalid JSON data:", error);
       alert("Please enter valid JSON data");
     }
@@ -56,6 +60,7 @@ const ProductForm = ({ products, setProducts }: ProductListProps) => {
       onSubmit={handleSubmit}
       className="max-w-md mx-auto p-4 bg-white shadow-md rounded"
     >
+      {error && <p>error</p>}
       <div className="mb-4">
         <label className="block text-gray-700 text-sm font-bold mb-2">
           Product Name:
@@ -86,7 +91,7 @@ const ProductForm = ({ products, setProducts }: ProductListProps) => {
         type="submit"
         className="w-full bg-blue-500 text-white p-2 rounded hover:bg-blue-600"
       >
-        Submit
+        {isLoading ? "Submitting" : "Submit"}
       </button>
     </form>
   );

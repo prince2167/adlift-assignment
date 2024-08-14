@@ -1,4 +1,4 @@
-import React, { useState, useMemo } from "react";
+import React, { useState, useMemo, use, useEffect } from "react";
 import FilterDropdown from "./FilterDropdown";
 import ProductCard from "./ProductCard";
 import { Bar, Pie } from "react-chartjs-2";
@@ -12,6 +12,7 @@ import {
   Legend,
   ArcElement,
 } from "chart.js";
+import { getProducts } from "@/lib/actions/products.action";
 
 ChartJS.register(
   CategoryScale,
